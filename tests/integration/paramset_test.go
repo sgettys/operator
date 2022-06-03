@@ -68,7 +68,7 @@ var _ = Describe("ParameterSet lifecycle", func() {
 			inst.ObjectMeta.Namespace = ns
 			inst.Spec.Namespace = ns
 			inst.Spec.ParameterSets = append(inst.Spec.ParameterSets, pSetName)
-			inst.Spec.SchemaVersion = "1.0.0"
+			inst.Spec.SchemaVersion = "1.0.1"
 			Expect(k8sClient.Create(ctx, inst)).Should(Succeed())
 			Expect(waitForPorter(ctx, inst, "waiting for porter-test-me to install")).Should(Succeed())
 			validateInstallationConditions(inst)
