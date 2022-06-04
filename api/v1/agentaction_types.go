@@ -71,6 +71,10 @@ func (a *AgentAction) GetConditions() *[]metav1.Condition {
 	return &a.Status.Conditions
 }
 
+func (a *AgentAction) GetStatus() AgentActionStatus {
+	return a.Status
+}
+
 // GetRetryLabelValue returns a value that is safe to use
 // as a label value and represents the retry annotation used
 // to trigger reconciliation.
