@@ -238,9 +238,9 @@ func Publish() {
 // Push the porter-operator bundle to a registry. Defaults to the local test registry.
 func PublishBundle() {
 	mg.SerialDeps(PublishImages, BuildBundle)
-	buildPorterCmd("publish", "--registry", Env.Registry, "-f=porter.yaml").In("installer").Must().RunV()
-
 	meta := releases.LoadMetadata()
+	buildPorterCmd("publish", "--registry", Env.Registry, "-f=porter.yaml", "--tag", meta.Version).In("installer").Must().RunV()
+
 	buildPorterCmd("publish", "--registry", Env.Registry, "-f=porter.yaml", "--tag", meta.Permalink).In("installer").Must().RunV()
 }
 

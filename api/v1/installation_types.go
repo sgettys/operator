@@ -128,6 +128,14 @@ func (i *Installation) GetStatus() PorterResourceStatus {
 	return i.Status.PorterResourceStatus
 }
 
+func (i *Installation) GetObservedGeneration() int64 {
+	return i.Status.ObservedGeneration
+}
+
+func (i *Installation) GetConditions() []metav1.Condition {
+	return i.Status.Conditions
+}
+
 func (i *Installation) SetStatus(value PorterResourceStatus) {
 	i.Status.PorterResourceStatus = value
 }

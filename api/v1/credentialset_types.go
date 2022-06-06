@@ -77,6 +77,12 @@ type CredentialSet struct {
 	Status CredentialSetStatus `json:"status,omitempty"`
 }
 
+func (cs *CredentialSet) GetObservedGeneration() int64 {
+	return cs.Status.ObservedGeneration
+}
+func (cs *CredentialSet) GetConditions() []metav1.Condition {
+	return cs.Status.Conditions
+}
 func (cs *CredentialSet) GetStatus() PorterResourceStatus {
 	return cs.Status.PorterResourceStatus
 }

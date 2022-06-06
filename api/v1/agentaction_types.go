@@ -67,8 +67,11 @@ type AgentAction struct {
 	Status AgentActionStatus `json:"status,omitempty"`
 }
 
-func (a *AgentAction) GetConditions() *[]metav1.Condition {
-	return &a.Status.Conditions
+func (a *AgentAction) GetConditions() []metav1.Condition {
+	return a.Status.Conditions
+}
+func (a *AgentAction) GetObservedGeneration() int64 {
+	return a.Status.ObservedGeneration
 }
 
 func (a *AgentAction) GetStatus() AgentActionStatus {
