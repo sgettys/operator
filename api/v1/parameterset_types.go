@@ -85,14 +85,6 @@ func (ps *ParameterSet) SetStatus(value PorterResourceStatus) {
 	ps.Status.PorterResourceStatus = value
 }
 
-func (ps *ParameterSet) GetObservedGeneration() int64 {
-	return ps.Status.ObservedGeneration
-}
-
-func (ps *ParameterSet) GetConditions() []metav1.Condition {
-	return ps.Status.Conditions
-}
-
 // GetRetryLabelValue returns a value that is safe to use
 // as a label value and represents the retry annotation used
 // to trigger reconciliation.

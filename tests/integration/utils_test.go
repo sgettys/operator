@@ -26,10 +26,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-type porterResource interface {
-	client.Object
+type porterStatus interface {
+	GetConditions() *[]metav1.Condition
 	GetObservedGeneration() int64
-	GetConditions() []metav1.Condition
 }
 
 // Get the amount of time that we should wait for a test action to be processed.
@@ -54,7 +53,7 @@ func LogJson(value string) {
 	GinkgoWriter.Write(pretty.Pretty([]byte(value + "\n")))
 }
 
-func waitForPorter(ctx context.Context, resource porterResource, namespace, name, msg string) error {
+func waitForPorter(ctx context.Context, resource client.Object, status porterStatus, namespace, name, msg string) error {
 	Log("%s: %s/%s", msg, namespace, name)
 	key := client.ObjectKey{Namespace: namespace, Name: name}
 	ctx, cancel := context.WithTimeout(ctx, getWaitTimeout())
@@ -73,15 +72,15 @@ func waitForPorter(ctx context.Context, resource porterResource, namespace, name
 				}
 				return err
 			}
-			conditions := resource.GetConditions()
+			conditions := status.GetConditions()
 			// Check if the latest change has been processed
-			if resource.GetGeneration() == resource.GetObservedGeneration() {
-				if apimeta.IsStatusConditionTrue(conditions, string(porterv1.ConditionComplete)) {
+			if resource.GetGeneration() == status.GetObservedGeneration() {
+				if apimeta.IsStatusConditionTrue(*conditions, string(porterv1.ConditionComplete)) {
 					time.Sleep(time.Second)
 					return nil
 				}
 
-				if apimeta.IsStatusConditionTrue(conditions, string(porterv1.ConditionFailed)) {
+				if apimeta.IsStatusConditionTrue(*conditions, string(porterv1.ConditionFailed)) {
 					// Grab some extra info to help with debugging
 					debugFailedResource(ctx, name, namespace)
 					return errors.New("porter did not run successfully")
@@ -94,7 +93,7 @@ func waitForPorter(ctx context.Context, resource porterResource, namespace, name
 	}
 }
 
-func waitForResourceDeleted(ctx context.Context, resource porterResource, namespace, name string) error {
+func waitForResourceDeleted(ctx context.Context, resource client.Object, namespace, name string) error {
 	Log("Waiting for resource to finish deleting: %s/%s", namespace, name)
 	key := client.ObjectKey{Namespace: namespace, Name: name}
 	waitCtx, cancel := context.WithTimeout(ctx, getWaitTimeout())
@@ -213,7 +212,7 @@ used to run porter commands inside the cluster to validate porter state
 func runAgentAction(ctx context.Context, actionName string, namespace string, cmd []string) string {
 	aa := newAgentAction(namespace, actionName, cmd)
 	Expect(k8sClient.Create(ctx, aa)).Should(Succeed())
-	Expect(waitForPorter(ctx, aa, aa.Namespace, aa.Name, fmt.Sprintf("waiting for action %s to run", actionName))).Should(Succeed())
+	Expect(waitForPorter(ctx, aa, &aa.Status, aa.Namespace, aa.Name, fmt.Sprintf("waiting for action %s to run", actionName))).Should(Succeed())
 	aaOut, err := getAgentActionJobOutput(ctx, aa.Name, namespace)
 	Expect(err).Error().ShouldNot(HaveOccurred())
 	return getAgentActionCmdOut(aa, aaOut)

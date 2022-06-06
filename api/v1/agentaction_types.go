@@ -38,21 +38,9 @@ type AgentActionSpec struct {
 
 // AgentActionStatus defines the observed state of AgentAction
 type AgentActionStatus struct {
-	// The last generation observed by the controller.
-	ObservedGeneration int64 `json:"observedGeneration,omitempty"`
-
+	PorterStatus `json:",inline"`
 	// The currently active job that is running the Porter Agent.
 	Job *corev1.LocalObjectReference `json:"job,omitempty"`
-
-	// The current status of the agent.
-	// Possible values are: Unknown, Pending, Running, Succeeded, and Failed.
-	// +kubebuilder:validation:Type=string
-	Phase AgentPhase `json:"phase,omitempty"`
-
-	// Conditions store a list of states that have been reached.
-	// Each condition refers to the status of the Job
-	// Possible conditions are: Scheduled, Started, Completed, and Failed
-	Conditions []metav1.Condition `json:"conditions,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -65,13 +53,6 @@ type AgentAction struct {
 
 	Spec   AgentActionSpec   `json:"spec,omitempty"`
 	Status AgentActionStatus `json:"status,omitempty"`
-}
-
-func (a *AgentAction) GetConditions() []metav1.Condition {
-	return a.Status.Conditions
-}
-func (a *AgentAction) GetObservedGeneration() int64 {
-	return a.Status.ObservedGeneration
 }
 
 func (a *AgentAction) GetStatus() AgentActionStatus {
