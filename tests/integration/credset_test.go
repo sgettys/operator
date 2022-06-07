@@ -19,7 +19,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = FDescribe("CredentialSet create", func() {
+var _ = Describe("CredentialSet create", func() {
 	Context("when a new CredentialSet resource is created with secret source", func() {
 		It("should run porter", func() {
 			By("creating an agent action", func() {
