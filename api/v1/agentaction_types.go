@@ -55,8 +55,8 @@ type AgentAction struct {
 	Status AgentActionStatus `json:"status,omitempty"`
 }
 
-func (a *AgentAction) GetStatus() AgentActionStatus {
-	return a.Status
+func (a *AgentAction) GetStatus() *AgentActionStatus {
+	return &a.Status
 }
 
 // GetRetryLabelValue returns a value that is safe to use
