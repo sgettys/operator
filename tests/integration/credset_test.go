@@ -5,6 +5,7 @@ package integration_test
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"get.porter.sh/operator/controllers"
 	"github.com/go-logr/logr"
@@ -153,9 +154,12 @@ var _ = Describe("CredentialSet update", func() {
 					controllers.PatchObjectWithRetry(ctx, logr.Discard(), k8sClient, k8sClient.Patch, cs, func() client.Object {
 						return &porterv1.CredentialSet{}
 					})
+					// Wait for patch to apply, this can cause race conditions
+					time.Sleep(time.Second)
 				}
 				patchCS(cs)
 				Expect(waitForPorter(ctx, cs, "waiting for credential update to apply")).Should(Succeed())
+				time.Sleep(10)
 				Log("verify it's updated")
 				jsonOut = runAgentAction(ctx, "update-check-credentials-list", ns, []string{"credentials", "list", "-n", ns, "-o", "json"})
 				updatedFirstName := gjson.Get(jsonOut, "0.name").String()
@@ -301,42 +305,3 @@ func newAgentAction(namespace string, name string, cmd []string) *porterv1.Agent
 		},
 	}
 }
-
-// func waitForAgentAction(ctx context.Context, aa *porterv1.AgentAction, namespace, name, msg string) error {
-// 	Log("%s: %s/%s", msg, namespace, name)
-// 	key := client.ObjectKey{Namespace: namespace, Name: name}
-// 	ctx, cancel := context.WithTimeout(ctx, getWaitTimeout())
-// 	defer cancel()
-// 	for {
-// 		select {
-// 		case <-ctx.Done():
-// 			Fail(errors.Wrapf(ctx.Err(), "timeout %s", msg).Error())
-// 		default:
-// 			err := k8sClient.Get(ctx, key, aa)
-// 			if err != nil {
-// 				// There is lag between creating and being able to retrieve, I don't understand why
-// 				if apierrors.IsNotFound(err) {
-// 					time.Sleep(time.Second)
-// 					continue
-// 				}
-// 				return err
-// 			}
-// 			// Check if the latest change has been processed
-// 			if aa.Generation == aa.Status.ObservedGeneration {
-// 				if apimeta.IsStatusConditionTrue(aa.Status.Conditions, string(porterv1.ConditionComplete)) {
-// 					return nil
-// 				}
-
-// 				if apimeta.IsStatusConditionTrue(aa.Status.Conditions, string(porterv1.ConditionFailed)) {
-// 					// Grab some extra info to help with debugging
-// 					//debugFailedCSCreate(ctx, aa)
-// 					return errors.New("porter did not run successfully")
-// 				}
-// 			}
-
-// 			time.Sleep(time.Second)
-// 			continue
-// 		}
-// 	}
-
-// }

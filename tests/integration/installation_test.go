@@ -54,6 +54,8 @@ var _ = Describe("Installation Lifecycle", func() {
 				controllers.PatchObjectWithRetry(ctx, logr.Discard(), k8sClient, k8sClient.Patch, inst, func() client.Object {
 					return &porterv1.Installation{}
 				})
+				// Wait for patch to apply, this can cause race conditions
+				time.Sleep(time.Second)
 			}
 
 			Log("upgrade the installation")

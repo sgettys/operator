@@ -107,7 +107,6 @@ func waitForPorter(ctx context.Context, resource client.Object, msg string) erro
 			porterResource, err := resourceClient.Get(ctx, name, metav1.GetOptions{})
 			observedGen, err := getObservedGeneration(porterResource)
 			if err != nil {
-				//Fail("Observed generation not found on status")
 				time.Sleep(time.Second)
 				continue
 			}
@@ -126,17 +125,7 @@ func waitForPorter(ctx context.Context, resource client.Object, msg string) erro
 					debugFailedResource(ctx, name, namespace)
 					return errors.New("porter did not run successfully")
 				}
-				//completed, err := conditionCheck(porterResource)
-				// if completed {
-				// 	if err != nil {
-				// 		debugFailedResource(ctx, name, namespace)
-				// 		return err
-				// 	} else {
-				// 		time.Sleep(time.Second)
-				// 		return nil
-				// 	}
 			}
-
 		}
 		time.Sleep(time.Second)
 		continue
@@ -162,45 +151,10 @@ func getConditions(obj *unstructured.Unstructured) ([]metav1.Condition, error) {
 	if !found {
 		return []metav1.Condition{}, errors.New("Unable to find resource status")
 	}
-	// Loop over the statuses
 	c := []metav1.Condition{}
 	mapstructure.Decode(conditions, &c)
 	return c, nil
 }
-
-//func conditionCheck(conditions []metav1.Condition) (bool, error) {
-// conditions, found, err := unstructured.NestedSlice(obj.Object, "status", "conditions")
-// if err != nil {
-// 	return false, err
-// }
-// if !found {
-// 	return false, errors.New("Unable to find resource status")
-// }
-// // Loop over the statuses
-// c := []metav1.Condition{}
-// mapstructure.Decode(conditions, &c)
-
-// for _, conditionUncast := range conditions {
-// 	condition := conditionUncast.(map[string]interface{})
-// 	name, found, err := unstructured.NestedString(condition, "type")
-// 	if !found || err != nil {
-// 		continue
-// 	}
-// 	status, found, err := unstructured.NestedString(condition, "status")
-// 	if !found || err != nil {
-// 		continue
-// 	}
-// 	if strings.EqualFold(name, string(porterv1.ConditionComplete)) {
-// 		return strings.EqualFold(status, "True"), nil
-// 	}
-// 	if strings.EqualFold(name, string(porterv1.ConditionFailed)) {
-// 		if strings.EqualFold(status, "True") {
-// 			return true, errors.New("porter did not run successfully")
-// 		}
-// 	}
-// }
-// return false, nil
-//}
 
 func waitForResourceDeleted(ctx context.Context, resource client.Object, namespace, name string) error {
 	Log("Waiting for resource to finish deleting: %s/%s", namespace, name)

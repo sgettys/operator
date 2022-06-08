@@ -87,6 +87,8 @@ var _ = Describe("ParameterSet lifecycle", func() {
 				controllers.PatchObjectWithRetry(ctx, logr.Discard(), k8sClient, k8sClient.Patch, ps, func() client.Object {
 					return &porterv1.ParameterSet{}
 				})
+				// Wait for the patch to apply, this can cause race conditions
+				time.Sleep(time.Second)
 			}
 			patchPS(ps)
 			Expect(waitForPorter(ctx, ps, "waiting for parameters update to apply")).Should(Succeed())
