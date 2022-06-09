@@ -168,3 +168,19 @@ func (resourceChanged) Update(e event.UpdateEvent) bool {
 
 	return false
 }
+
+func isPorterResourceHandled(ctx context.Context, log logr.Logger, resource porterResource, c client.Client) (*porterv1.AgentAction, bool, error) {
+	labels := getActionLabels(resource)
+	results := porterv1.AgentActionList{}
+	err := c.List(ctx, &results, client.InNamespace(resource.GetNamespace()), client.MatchingLabels(labels))
+	if err != nil {
+		return nil, false, errors.Wrapf(err, "could not query for the current agent action")
+	}
+	if len(results.Items) == 0 {
+		log.V(Log4Debug).Info("No exisiting agent action was found")
+		return nil, false, nil
+	}
+	action := results.Items[0]
+	log.V(Log4Debug).Info("Found existing agent action", "agentaction", action.Name, "namespace", action.Namespace)
+	return &action, true, nil
+}

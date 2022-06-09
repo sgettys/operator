@@ -124,20 +124,7 @@ func (r *CredentialSetReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 
 // isHandled determines if this generation of the credential set resource has been processed by Porter
 func (r *CredentialSetReconciler) isHandled(ctx context.Context, log logr.Logger, cs *porterv1.CredentialSet) (*porterv1.AgentAction, bool, error) {
-	labels := getActionLabels(cs)
-	results := porterv1.AgentActionList{}
-	err := r.List(ctx, &results, client.InNamespace(cs.Namespace), client.MatchingLabels(labels))
-	if err != nil {
-		return nil, false, errors.Wrapf(err, "could not query for the current agent action")
-	}
-
-	if len(results.Items) == 0 {
-		log.V(Log4Debug).Info("No existing agent action was found")
-		return nil, false, nil
-	}
-	action := results.Items[0]
-	log.V(Log4Debug).Info("Found existing agent action", "agentaction", action.Name, "namespace", action.Namespace)
-	return &action, true, nil
+	return isPorterResourceHandled(ctx, log, cs, r.Client)
 }
 
 // Check the status of the porter-agent job and use that to update the AgentAction status

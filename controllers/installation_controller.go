@@ -137,21 +137,7 @@ func (r *InstallationReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 // Determines if this generation of the Installation has being processed by Porter.
 func (r *InstallationReconciler) isHandled(ctx context.Context, log logr.Logger, inst *porterv1.Installation) (*porterv1.AgentAction, bool, error) {
-	labels := getActionLabels(inst)
-	results := porterv1.AgentActionList{}
-	err := r.List(ctx, &results, client.InNamespace(inst.Namespace), client.MatchingLabels(labels))
-	if err != nil {
-		return nil, false, errors.Wrapf(err, "could not query for the current agent action")
-	}
-
-	if len(results.Items) == 0 {
-		log.V(Log4Debug).Info("No existing agent action was found")
-		return nil, false, nil
-	}
-
-	action := results.Items[0]
-	log.V(Log4Debug).Info("Found existing agent action", "agentaction", action.Name, "namespace", action.Namespace)
-	return &action, true, nil
+	return isPorterResourceHandled(ctx, log, inst, r.Client)
 }
 
 // Run the porter agent with the command `porter installation apply`

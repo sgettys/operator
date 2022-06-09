@@ -125,20 +125,7 @@ func (r *ParameterSetReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 // isHandled determines if this generation of the parameter set resource has been processed by Porter
 func (r *ParameterSetReconciler) isHandled(ctx context.Context, log logr.Logger, ps *porterv1.ParameterSet) (*porterv1.AgentAction, bool, error) {
-	labels := getActionLabels(ps)
-	results := porterv1.AgentActionList{}
-	err := r.List(ctx, &results, client.InNamespace(ps.Namespace), client.MatchingLabels(labels))
-	if err != nil {
-		return nil, false, errors.Wrapf(err, "could not query for the current agent action")
-	}
-
-	if len(results.Items) == 0 {
-		log.V(Log4Debug).Info("No existing agent action was found")
-		return nil, false, nil
-	}
-	action := results.Items[0]
-	log.V(Log4Debug).Info("Found existing agent action", "agentaction", action.Name, "namespace", action.Namespace)
-	return &action, true, nil
+	return isPorterResourceHandled(ctx, log, ps, r.Client)
 }
 
 //Check the status of the porter-agent job and use that to update the AgentAction status
