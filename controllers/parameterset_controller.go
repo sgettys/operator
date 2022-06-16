@@ -30,11 +30,6 @@ type ParameterSetReconciler struct {
 //+kubebuilder:rbac:groups=porter.sh,resources=parametersets,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=porter.sh,resources=parametersets/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=porter.sh,resources=parametersets/finalizers,verbs=update
-//+kubebuilder:rbac:groups=porter.sh,resources=agentconfigs,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=porter.sh,resources=porterconfigs,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=batch,resources=jobs,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups="",resources=persistentvolumeclaims,verbs=get;list;watch;create;update;patch;delete
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *ParameterSetReconciler) SetupWithManager(mgr ctrl.Manager) error {

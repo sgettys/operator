@@ -30,11 +30,6 @@ type CredentialSetReconciler struct {
 //+kubebuilder:rbac:groups=porter.sh,resources=credentialsets,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=porter.sh,resources=credentialsets/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=porter.sh,resources=credentialsets/finalizers,verbs=update
-//+kubebuilder:rbac:groups=porter.sh,resources=agentconfigs,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=porter.sh,resources=porterconfigs,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=batch,resources=jobs,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups="",resources=persistentvolumeclaims,verbs=get;list;watch;create;update;patch;delete
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *CredentialSetReconciler) SetupWithManager(mgr ctrl.Manager) error {
